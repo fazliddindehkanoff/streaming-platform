@@ -131,7 +131,7 @@ export default function LoginPage() {
               </div>
             ) : (
               <div className="text-red-400 text-center">
-                <p>Telegram bot name not configured.</p>
+                <p>Telegram bot name not configured</p>
                 <p className="text-xs mt-1">Please set the TELEGRAM_BOT_NAME environment variable.</p>
               </div>
             )}
