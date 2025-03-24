@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if VDOCipher API secret is configured
-    if (!process.env.VDOCIPHER_API_SECRET) {
+    if (!process.env.NEXT_PUBLIC_VDOCIPHER_API_SECRET) {
       return NextResponse.json({ error: "VDOCipher API secret not configured" }, { status: 500 })
     }
 

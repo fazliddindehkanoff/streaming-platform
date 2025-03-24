@@ -12,10 +12,10 @@ interface TelegramUser {
 
 export function validateTelegramAuth(telegramUser: any): boolean {
   // Get the Telegram bot token from environment variables
-  const botToken = process.env.TELEGRAM_BOT_TOKEN
+  const botToken = process.env.NEXT_PUBLIC_TELEGRAM_BOT_TOKEN
 
   if (!botToken) {
-    console.error("TELEGRAM_BOT_TOKEN is not defined in environment variables")
+    console.error("NEXT_PUBLIC_TELEGRAM_BOT_TOKEN is not defined in environment variables")
     return false
   }
 
