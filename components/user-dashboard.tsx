@@ -101,11 +101,10 @@ export function UserDashboard() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">Now Playing</h1>
           <div className="aspect-video bg-zinc-900 rounded-lg overflow-hidden">
-            <VideoPlayer videoId={selectedVideo?.videoId} platform={selectedVideo?.platform} url={selectedVideo?.url} />
+            <VideoPlayer videoId={selectedVideo?.videoId} />
           </div>
           <div className="mt-4">
             <h2 className="text-xl font-semibold">{selectedVideo?.title}</h2>
-            <p className="text-zinc-400 mt-2">{selectedVideo?.description}</p>
           </div>
         </div>
 
@@ -114,9 +113,9 @@ export function UserDashboard() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {videos.map((video) => (
               <div
-                key={video._id}
+                key={video.videoId}
                 className={`cursor-pointer rounded-lg overflow-hidden border ${
-                  selectedVideo?._id === video._id ? "border-white" : "border-zinc-800"
+                  selectedVideo?.videoId === video.videoId ? "border-white" : "border-zinc-800"
                 }`}
                 onClick={() => setSelectedVideo(video)}
               >
@@ -129,7 +128,6 @@ export function UserDashboard() {
                 </div>
                 <div className="p-3">
                   <h3 className="font-medium">{video.title}</h3>
-                  <p className="text-sm text-zinc-400 line-clamp-2 mt-1">{video.description}</p>
                 </div>
               </div>
             ))}
