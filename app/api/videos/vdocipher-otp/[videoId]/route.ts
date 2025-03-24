@@ -1,5 +1,3 @@
-// Create a Next.js API route: /app/api/video/[videoId]/route.ts
-
 import { NextResponse } from 'next/server'
 
 export async function GET(
