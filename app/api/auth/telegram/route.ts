@@ -74,13 +74,16 @@ export async function POST(req: NextRequest) {
 
 // Also handle GET requests for redirect from Telegram
 export async function GET(req: NextRequest) {
+  // Move prefersJSON declaration outside try block
+  const prefersJSON = req.headers.get('Accept')?.includes('application/json')
+  
   try {
     const url = new URL(req.url)
     const params = Object.fromEntries(url.searchParams.entries())
 
-    // Check for JSON response preference
-    const prefersJSON = req.headers.get('Accept')?.includes('application/json')
+    // Removed redundant prefersJSON declaration here
 
+    // Check for JSON response preference
     const isValid = validateTelegramAuth(params)
     if (!isValid) {
       console.error("Invalid authentication data")
