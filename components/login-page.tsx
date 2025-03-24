@@ -3,9 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Script from "next/script"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { BellIcon as BrandTelegram } from "lucide-react"
 
 // Define the window interface for Telegram Login Widget
 declare global {
@@ -129,26 +127,6 @@ export default function LoginPage() {
               </div>
             )}
           </div>
-
-          {/* Fallback button in case the widget doesn't load */}
-          <Button
-            variant="outline"
-            className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 text-white"
-            onClick={() => window.location.reload()}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-400 border-t-zinc-100" />
-                Connecting...
-              </span>
-            ) : (
-              <span className="flex items-center gap-2">
-                <BrandTelegram className="h-5 w-5 text-[#0088cc]" />
-                Reload Telegram Login
-              </span>
-            )}
-          </Button>
         </CardContent>
         <CardFooter className="flex flex-col">
           <p className="mt-2 text-xs text-center text-zinc-400">

@@ -88,8 +88,8 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
     }
   }
 
-  const handleAllowUser = (_id: string) => {
-    const user = users.find(u => u._id === _id)
+  const handleAllowUser = (telegramId: string) => {
+    const user = users.find(u => u.telegramId === telegramId)
     if (user) {
       onUpdateUser({ ...user, isAllowed: true })
     }
@@ -258,7 +258,7 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
                         variant="outline"
                         size="icon"
                         className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700 hover:text-green-500"
-                        onClick={() => handleAllowUser(user._id)}
+                        onClick={() => handleAllowUser(user.telegramId)}
                         disabled={isAdmin(user._id)}
                       >
                         <Check className="h-4 w-4" />
