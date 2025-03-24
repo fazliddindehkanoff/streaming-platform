@@ -50,8 +50,7 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      console.log("Sending request to:", "/api/auth/telegram")
-      console.log("User data:", telegramUser)
+      console.log("Telegram user data:", telegramUser)
 
       const response = await fetch("/api/auth/telegram", {
         method: "POST",
@@ -61,24 +60,16 @@ export default function LoginPage() {
         body: JSON.stringify(telegramUser),
       })
 
-      // Get raw response text first
-      const responseText = await response.text()
-      console.log("Raw response text:", responseText.slice(0, 100)) // First 100 chars
-      
-      // Try to parse as JSON
-      const data = JSON.parse(responseText)
-      console.log("Parsed JSON:", data)
+      const data = await response.json()
 
       if (!response.ok) {
         throw new Error(data.error || "Authentication failed")
       }
 
+      // Redirect to dashboard on successful login
       router.push("/dashboard")
     } catch (error) {
-      console.error("Full error details:", {
-        error,
-        responseText: error.responseText || "N/A"
-      })
+      console.error("Login failed:", error)
       setError(error instanceof Error ? error.message : "Authentication failed")
       setIsLoading(false)
     }
@@ -116,22 +107,29 @@ export default function LoginPage() {
                 <Script
                   src="https://telegram.org/js/telegram-widget.js?22"
                   onLoad={() => {
+                    setScriptLoaded(true)
                     const script = document.createElement("script")
                     script.async = true
-                    script.src = `https://telegram.org/js/telegram-widget.js?22`
+                    script.src = "https://telegram.org/js/telegram-widget.js?22"
                     script.setAttribute("data-telegram-login", botName)
-                    script.setAttribute("data-onauth", "onTelegramAuth(user)")
+                    script.setAttribute("data-size", "large")
+                    script.setAttribute("data-radius", "8")
                     script.setAttribute("data-request-access", "write")
+                    script.setAttribute("data-userpic", "true")
+                    script.setAttribute("data-onauth", "onTelegramAuth(user)")
                     const container = document.getElementById("telegram-login-container")
-                    container?.replaceChildren(script)
+                    if (container) {
+                      container.innerHTML = ""
+                      container.appendChild(script)
+                    }
                   }}
                   strategy="afterInteractive"
                 />
               </div>
             ) : (
               <div className="text-red-400 text-center">
-                <p>Telegram bot name not configured</p>
-                <p className="text-xs mt-1">Please set the TELEGRAM_BOT_NAME environment variable.</p>
+                <p>Telegram bot name not configured.</p>
+                <p className="text-xs mt-1">Please set the NEXT_PUBLIC_TELEGRAM_BOT_NAME environment variable.</p>
               </div>
             )}
           </div>
