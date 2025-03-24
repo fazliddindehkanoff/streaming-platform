@@ -50,7 +50,8 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      console.log("Telegram user data:", telegramUser)
+      console.log("Sending request to:", "/api/auth/telegram")
+      console.log("User data:", telegramUser)
 
       const response = await fetch("/api/auth/telegram", {
         method: "POST",
@@ -60,23 +61,24 @@ export default function LoginPage() {
         body: JSON.stringify(telegramUser),
       })
 
-      // Handle non-JSON responses
-      const contentType = response.headers.get("content-type")
-      if (!contentType || !contentType.includes("application/json")) {
-        const text = await response.text()
-        throw new Error(`Invalid response: ${text.slice(0, 100)}`)
-      }
-
-      const data = await response.json()
+      // Get raw response text first
+      const responseText = await response.text()
+      console.log("Raw response text:", responseText.slice(0, 100)) // First 100 chars
+      
+      // Try to parse as JSON
+      const data = JSON.parse(responseText)
+      console.log("Parsed JSON:", data)
 
       if (!response.ok) {
         throw new Error(data.error || "Authentication failed")
       }
 
-      // Redirect to dashboard on successful login
       router.push("/dashboard")
     } catch (error) {
-      console.error("Login failed:", error)
+      console.error("Full error details:", {
+        error,
+        responseText: error.responseText || "N/A"
+      })
       setError(error instanceof Error ? error.message : "Authentication failed")
       setIsLoading(false)
     }
@@ -114,10 +116,9 @@ export default function LoginPage() {
                 <Script
                   src="https://telegram.org/js/telegram-widget.js?22"
                   onLoad={() => {
-                    const nonce = Math.random().toString(36).substring(2, 15)
                     const script = document.createElement("script")
                     script.async = true
-                    script.src = `https://telegram.org/js/telegram-widget.js?22#${nonce}`
+                    script.src = `https://telegram.org/js/telegram-widget.js?22`
                     script.setAttribute("data-telegram-login", botName)
                     script.setAttribute("data-onauth", "onTelegramAuth(user)")
                     script.setAttribute("data-request-access", "write")
