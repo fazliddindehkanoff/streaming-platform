@@ -23,9 +23,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     // Get the bot name from environment variable
-    if (process.env.TELEGRAM_BOT_NAME) {
-      setBotName(process.env.TELEGRAM_BOT_NAME)
-    }
+    setBotName("farqiyoooobot")
+    
 
     // Define the callback function for Telegram Login Widget
     window.onTelegramAuth = (user) => {
