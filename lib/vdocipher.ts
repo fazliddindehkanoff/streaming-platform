@@ -5,26 +5,15 @@
 // Function to get OTP for VDOCipher video
 export async function getVdoCipherOtp(videoId: string) {
   try {
-    // Make a request to VDOCipher API to get OTP
-    const response = await fetch(`https://dev.vdocipher.com/api/videos/${videoId}/otp`, {
-      method: "POST",
+    // Call our own API endpoint instead of VDOCipher directly
+    const response = await fetch(`/api/video/${videoId}`, {
+      method: "GET",
       headers: {
-        Accept: "application/json",
         "Content-Type": "application/json",
-        Authorization: `Apisecret ${process.env.NEXT_PUBLIC_VDOCIPHER_API_SECRET}`,
-        "Access-Control-Allow-Origin": "*",
       },
-      body: JSON.stringify({
-        ttl: 300, // OTP valid for 5 minutes
-      }),
     })
 
-    if (!response.ok) {
-      throw new Error(`VDOCipher API error: ${response.statusText}`)
-    }
-
-    const data = await response.json()
-    return data
+    return response 
   } catch (error) {
     console.error("Error getting VDOCipher OTP:", error)
     throw error
@@ -61,4 +50,3 @@ export function extractVdoCipherId(url: string): string | null {
     return null
   }
 }
-

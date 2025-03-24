@@ -1,39 +1,57 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getVdoCipherOtp } from "@/lib/vdocipher"
-import { getSessionUser } from "@/lib/auth-utils"
+// Create a Next.js API route: /app/api/video/[videoId]/route.ts
 
-export async function POST(req: NextRequest) {
+import { NextResponse } from 'next/server'
+
+export async function GET(
+  request: Request,
+  { params }: { params: { videoId: string } }
+) {
+  const videoId = params.videoId
+  
+  if (!videoId) {
+    return NextResponse.json({ error: 'Video ID is required' }, { status: 400 })
+  }
+
   try {
-    // Check if the user is authenticated
-    const session = await getSessionUser()
-
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Get API secret from environment variable
+    const apiSecret = process.env.VDOCIPHER_API_SECRET
+    
+    if (!apiSecret) {
+      return NextResponse.json(
+        { error: 'VDOCipher API secret not configured' }, 
+        { status: 500 }
+      )
     }
 
-    const { videoId } = await req.json()
-
-    if (!videoId) {
-      return NextResponse.json({ error: "Video ID is required" }, { status: 400 })
-    }
-
-    // Check if VDOCipher API secret is configured
-    if (!process.env.NEXT_PUBLIC_VDOCIPHER_API_SECRET) {
-      return NextResponse.json({ error: "VDOCipher API secret not configured" }, { status: 500 })
-    }
-
-    const otpData = await getVdoCipherOtp(videoId)
-
-    return NextResponse.json(otpData)
-  } catch (error) {
-    console.error("Error getting VDOCipher OTP:", error)
-    return NextResponse.json(
-      {
-        error: "Failed to get OTP",
-        details: error instanceof Error ? error.message : "Unknown error",
+    // Make the request from the server side
+    const response = await fetch(`https://dev.vdocipher.com/api/videos/${videoId}/otp`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': `Apisecret ${apiSecret}`
       },
-      { status: 500 },
+      body: JSON.stringify({
+        ttl: 300 // OTP valid for 5 minutes
+      })
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      return NextResponse.json(
+        { error: `VDOCipher API error: ${response.status} ${response.statusText}`, details: errorText }, 
+        { status: response.status }
+      )
+    }
+
+    // Return the OTP data from VDOCipher
+    const data = await response.json()
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error('Error getting VDOCipher OTP:', error)
+    return NextResponse.json(
+      { error: 'Failed to get video OTP' }, 
+      { status: 500 }
     )
   }
 }
-
