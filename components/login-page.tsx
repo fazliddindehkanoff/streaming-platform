@@ -22,9 +22,11 @@ export default function LoginPage() {
   const [botName, setBotName] = useState<string | null>(null)
 
   useEffect(() => {
-    // Get the bot name from environment variable
-    setBotName("farqiyoooobot")
-    
+    // Fix: Use environment variable properly
+    if (process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME) {
+      setBotName(process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME)
+    }
+
 
     // Define the callback function for Telegram Login Widget
     window.onTelegramAuth = (user) => {
@@ -107,24 +109,15 @@ export default function LoginPage() {
                 <Script
                   src="https://telegram.org/js/telegram-widget.js?22"
                   onLoad={() => {
-                    setScriptLoaded(true)
-                    // Create the Telegram login button
+                    const nonce = Math.random().toString(36).substring(2, 15)
                     const script = document.createElement("script")
                     script.async = true
-                    script.src = "https://telegram.org/js/telegram-widget.js?22"
+                    script.src = `https://telegram.org/js/telegram-widget.js?22#${nonce}`
                     script.setAttribute("data-telegram-login", botName)
-                    script.setAttribute("data-size", "large")
-                    script.setAttribute("data-radius", "8")
+                    script.setAttribute("data-auth-url", "/api/auth/telegram")
                     script.setAttribute("data-request-access", "write")
-                    script.setAttribute("data-userpic", "true")
-                    script.setAttribute("data-onauth", "onTelegramAuth(user)")
-
-                    // Clear the container and append the script
                     const container = document.getElementById("telegram-login-container")
-                    if (container) {
-                      container.innerHTML = ""
-                      container.appendChild(script)
-                    }
+                    container?.replaceChildren(script)
                   }}
                   strategy="afterInteractive"
                 />
