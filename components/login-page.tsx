@@ -23,8 +23,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     // Get the bot name from environment variable
-    if (process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME) {
-      setBotName(process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME)
+    if (process.env.TELEGRAM_BOT_NAME) {
+      setBotName(process.env.TELEGRAM_BOT_NAME)
     }
 
     // Define the callback function for Telegram Login Widget
@@ -133,7 +133,7 @@ export default function LoginPage() {
             ) : (
               <div className="text-red-400 text-center">
                 <p>Telegram bot name not configured.</p>
-                <p className="text-xs mt-1">Please set the NEXT_PUBLIC_TELEGRAM_BOT_NAME environment variable.</p>
+                <p className="text-xs mt-1">Please set the TELEGRAM_BOT_NAME environment variable.</p>
               </div>
             )}
           </div>
