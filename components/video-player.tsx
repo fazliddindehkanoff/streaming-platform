@@ -14,84 +14,104 @@ export function VideoPlayer({ videoId, url }: VideoPlayerProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [vdoScriptLoaded, setVdoScriptLoaded] = useState(false)
-  const playerRef = useRef<any>(null) // Store player instance
+  const [isPlayerInitialized, setIsPlayerInitialized] = useState(false)
 
-  // Initialize player when both script is loaded and container is available
+  // Always render the container element regardless of loading state
   useEffect(() => {
-    if (!vdoScriptLoaded || !containerRef.current) {
+    console.log("Component mounted, container ref:", containerRef.current ? "available" : "not available")
+    
+    // This effect runs once after initial render to confirm the ref is available
+    return () => {
+      console.log("Component unmounting")
+    }
+  }, [])
+
+  // Handle script loading separately
+  useEffect(() => {
+    if (vdoScriptLoaded) {
+      console.log("VDO script is loaded and ready")
+    }
+  }, [vdoScriptLoaded])
+
+  // Handle player initialization when both conditions are met
+  useEffect(() => {
+    // Skip if either condition isn't met
+    if (!vdoScriptLoaded) {
+      console.log("Waiting for VDO script to load...")
+      return
+    }
+    
+    if (!containerRef.current) {
+      console.log("Container ref is not available yet")
       return
     }
 
-    const initializePlayer = async () => {
-      try {
-        setIsLoading(true)
-        setError(null)
+    // Skip if player is already initialized for this video
+    if (isPlayerInitialized) {
+      return
+    }
 
+    console.log("Both script loaded and container available, initializing player...")
+    
+    const initializePlayer = async () => {
+      setIsLoading(true)
+      setError(null)
+      
+      try {
+        // if (!window.vdo || !window.vdo.Player) {
+        //   throw new Error("VDOCipher API not available")
+        // }
+
+        // Log container details for debugging
+        const container = containerRef.current
+        // console.log("Container dimensions:", {
+        //   width: container.clientWidth,
+        //   height: container.clientHeight,
+        //   offsetWidth: container.offsetWidth,
+        //   offsetHeight: container.offsetHeight
+        // })
+
+        // Get OTP for video
         console.log("Fetching OTP for video:", videoId)
         const response = await getVdoCipherOtp(videoId)
 
         if (!response.ok) {
-          let errorMessage = `Failed to get video OTP: ${response.status} ${response.statusText}`
-          try {
-            const errorData = await response.json()
-            console.error("API error details:", errorData)
-            errorMessage = errorData.error || errorMessage
-          } catch (e) {
-            // If parsing fails, try to get text
-            const text = await response.text()
-            console.error("API error response:", text)
-          }
-          throw new Error(errorMessage)
+          throw new Error(`Failed to get video OTP: ${response.status}`)
         }
 
-        const data = await response.json()
-        console.log("OTP received successfully")
-
-        if (!window.vdo || !window.vdo.Player) {
-          throw new Error("VDOCipher player not loaded")
-        }
-
-        if (playerRef.current) {
-          console.log("Cleaning up previous player instance")
-          // Clean up if there was a previous player
-          if (containerRef.current) {
-            containerRef.current.innerHTML = ""
-          }
-          playerRef.current = null
-        }
-
-        console.log("Creating new player instance")
-        // Create the player with the container ref that we know exists
-        playerRef.current = new window.vdo.Player({
+        const { otp, playbackInfo } = await response.json()
+        
+        // Initialize player with the container that we confirmed exists
+        console.log("Creating player instance...")
+        new window.vdo.Player({
           container: containerRef.current,
-          otp: data.otp,
-          playbackInfo: data.playbackInfo,
+          otp,
+          playbackInfo,
           theme: "9ae8bbe8dd964ddc9bdb932cca1cb59a",
           autoplay: false,
         })
-
+        
         console.log("Player initialized successfully")
+        setIsPlayerInitialized(true)
       } catch (error) {
-        console.error("Player initialization error:", error)
-        setError(error instanceof Error ? error.message : "Unknown error initializing player")
+        console.error("Error initializing player:", error)
+        setError(`Failed to initialize player: ${error instanceof Error ? error.message : "Unknown error"}`)
       } finally {
         setIsLoading(false)
       }
     }
 
     initializePlayer()
-
-    // Clean up on unmount or if deps change
+    
+    // Cleanup function will run when component unmounts or dependencies change
     return () => {
-      if (playerRef.current) {
-        console.log("Cleaning up player on unmount")
-        playerRef.current = null
-        if (containerRef.current) {
-          containerRef.current.innerHTML = ""
-        }
+      console.log("Cleaning up player...")
+      if (containerRef.current) {
+        containerRef.current.innerHTML = ""
       }
+      setIsPlayerInitialized(false)
     }
-  }, [videoId, vdoScriptLoaded])
+  }, [videoId, vdoScriptLoaded, isPlayerInitialized])
 
   return (
     <div className="relative w-full h-full bg-black">
@@ -99,7 +119,7 @@ export function VideoPlayer({ videoId, url }: VideoPlayerProps) {
       <Script
         src="https://player.vdocipher.com/playerAssets/1.6.10/vdo.js"
         onLoad={() => {
-          console.log("VDOCipher script loaded")
+          console.log("VDOCipher script loaded successfully")
           setVdoScriptLoaded(true)
         }}
         onError={() => {
@@ -110,35 +130,26 @@ export function VideoPlayer({ videoId, url }: VideoPlayerProps) {
         strategy="afterInteractive"
       />
 
-      {/* Player container - always rendered */}
+      {/* Always render the container div */}
       <div ref={containerRef} className="w-full h-full" />
       
       {/* Loading overlay */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-10">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-700 border-t-white" />
         </div>
       )}
       
       {/* Error overlay */}
       {error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-10">
-          <div className="bg-red-900/20 text-red-400 border border-red-900/50 p-4 rounded-md max-w-md">
-            <h3 className="font-medium mb-2">Video Playback Error</h3>
-            <p className="text-sm">{error}</p>
-            <button 
-              onClick={() => window.location.reload()} 
-              className="mt-3 px-3 py-1 bg-red-900/30 hover:bg-red-900/50 rounded text-xs transition-colors"
-            >
-              Retry
-            </button>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+          <div className="bg-red-900/20 text-red-400 border border-red-900/50 p-4 rounded-md max-w-md text-center">
+            <p>{error}</p>
           </div>
         </div>
       )}
 
-      <div className="absolute top-2 right-2 bg-black/50 px-2 py-1 rounded text-xs text-white z-20">
-        VDOCipher
-      </div>
+      <div className="absolute top-2 right-2 bg-black/50 px-2 py-1 rounded text-xs text-white">VDOCipher</div>
     </div>
   )
 }
