@@ -38,7 +38,7 @@ export default function LoginPage() {
       if (errorParam === "invalid_auth") {
         setError("Invalid authentication data from Telegram")
       } else if (errorParam === "not_allowed") {
-        setError("Your account is not allowed to access this platform. Please contact the administrator.")
+        setError("Sizning accountingizga ruxsat berilmagan, iltimos admin bilan bog'laning.")
       } else {
         setError("Authentication failed. Please try again.")
       }
@@ -59,6 +59,13 @@ export default function LoginPage() {
         },
         body: JSON.stringify(telegramUser),
       })
+
+      // Handle non-JSON responses
+      const contentType = response.headers.get("content-type")
+      if (!contentType || !contentType.includes("application/json")) {
+        const text = await response.text()
+        throw new Error(`Invalid response: ${text.slice(0, 100)}`)
+      }
 
       const data = await response.json()
 

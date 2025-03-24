@@ -4,6 +4,9 @@ import { getUserByTelegramId, createUser } from "@/lib/db-service"
 import { cookies } from "next/headers"
 
 export async function POST(req: NextRequest) {
+  // Move prefersJSON declaration outside try block
+  const prefersJSON = req.headers.get('Accept')?.includes('application/json')
+  
   try {
     const telegramUser = await req.json()
     console.log("Received Telegram user data:", telegramUser)
@@ -13,7 +16,9 @@ export async function POST(req: NextRequest) {
 
     if (!isValid) {
       console.error("Invalid authentication data")
-      return NextResponse.json({ error: "Invalid authentication data" }, { status: 401 })
+      return prefersJSON
+        ? NextResponse.json({ error: "Invalid authentication data" }, { status: 401 })
+        : NextResponse.redirect(new URL(`/?error=invalid_auth`, req.url))
     }
 
     // Check if the user already exists in the database
@@ -31,7 +36,9 @@ export async function POST(req: NextRequest) {
 
     // Check if the user is allowed to access the platform
     if (!user.isAllowed) {
-      return NextResponse.json({ error: "User not allowed" }, { status: 403 })
+      return prefersJSON
+        ? NextResponse.json({ error: "User not allowed" }, { status: 403 })
+        : NextResponse.redirect(new URL(`/?error=not_allowed`, req.url))
     }
 
     // Set a session cookie
@@ -54,35 +61,37 @@ export async function POST(req: NextRequest) {
 
     // Sanitize user data before sending response
     const { _id, ...sanitizedUser } = user;
-    return NextResponse.json({ success: true, user: sanitizedUser })
+    return prefersJSON
+      ? NextResponse.json({ success: true, user: sanitizedUser })
+      : NextResponse.redirect(new URL("/dashboard", req.url))
   } catch (error) {
     console.error("Authentication error:", error)
-    return NextResponse.json({ error: "Authentication failed" }, { status: 500 })
+    return prefersJSON
+      ? NextResponse.json({ error: "Authentication failed" }, { status: 500 })
+      : NextResponse.redirect(new URL(`/?error=auth_failed`, req.url))
   }
 }
 
 // Also handle GET requests for redirect from Telegram
 export async function GET(req: NextRequest) {
   try {
-    // Extract Telegram auth data from URL parameters
     const url = new URL(req.url)
     const params = Object.fromEntries(url.searchParams.entries())
 
-    console.log("Received Telegram auth params:", params)
+    // Check for JSON response preference
+    const prefersJSON = req.headers.get('Accept')?.includes('application/json')
 
-    // Validate the Telegram authentication data
     const isValid = validateTelegramAuth(params)
-
     if (!isValid) {
       console.error("Invalid authentication data")
-      return NextResponse.redirect(new URL(`/?error=invalid_auth`, req.url))
+      return prefersJSON 
+        ? NextResponse.json({ error: "Invalid authentication data" }, { status: 401 })
+        : NextResponse.redirect(new URL(`/?error=invalid_auth`, req.url))
     }
 
-    // Use string ID directly (Telegram IDs are numeric strings)
     let user = await getUserByTelegramId(params.id)
-
+    console.log("User:", user)
     if (!user) {
-      // Add error handling for user creation
       try {
         const userData = {
           ...convertTelegramUserToDbUser(params),
@@ -91,17 +100,20 @@ export async function GET(req: NextRequest) {
         }
         user = await createUser(userData)
       } catch (error: any) {
-        if (error.code === 11000) { // MongoDB duplicate key error
+        if (error.code === 11000) {
           console.error("Duplicate user creation attempt")
-          return NextResponse.redirect(new URL(`/?error=user_exists`, req.url))
+          return prefersJSON
+            ? NextResponse.json({ error: "User already exists" }, { status: 409 })
+            : NextResponse.redirect(new URL(`/?error=user_exists`, req.url))
         }
-        throw error;
+        throw error
       }
     }
 
-    // Check if the user is allowed to access the platform
     if (!user.isAllowed) {
-      return NextResponse.redirect(new URL(`/?error=not_allowed`, req.url))
+      return prefersJSON
+        ? NextResponse.json({ error: "User not allowed" }, { status: 403 })
+        : NextResponse.redirect(new URL(`/?error=not_allowed`, req.url))
     }
 
     // Set a session cookie
@@ -122,10 +134,17 @@ export async function GET(req: NextRequest) {
       },
     )
 
-    return NextResponse.redirect(new URL("/dashboard", req.url))
+    // Sanitize user data before sending response
+    const { _id, ...sanitizedUser } = user;
+    return prefersJSON
+      ? NextResponse.json({ success: true, user: sanitizedUser })
+      : NextResponse.redirect(new URL("/dashboard", req.url))
+
   } catch (error) {
     console.error("Authentication error:", error)
-    return NextResponse.redirect(new URL(`/?error=auth_failed`, req.url))
+    return prefersJSON
+      ? NextResponse.json({ error: "Authentication failed" }, { status: 500 })
+      : NextResponse.redirect(new URL(`/?error=auth_failed`, req.url))
   }
 }
 
