@@ -12,6 +12,7 @@ export async function getVdoCipherOtp(videoId: string) {
         Accept: "application/json",
         "Content-Type": "application/json",
         Authorization: `Apisecret ${process.env.NEXT_PUBLIC_VDOCIPHER_API_SECRET}`,
+        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({
         ttl: 300, // OTP valid for 5 minutes
