@@ -6,7 +6,7 @@
 export async function getVdoCipherOtp(videoId: string) {
   try {
     // Call our own API endpoint instead of VDOCipher directly
-    const response = await fetch(`/api/videos/${videoId}`, {
+    const response = await fetch(`/api/videos/vdocipher-otp?videoId=${videoId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

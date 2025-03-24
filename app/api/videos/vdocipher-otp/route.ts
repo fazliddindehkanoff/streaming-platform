@@ -14,7 +14,7 @@ export async function GET(
 
   try {
     // Get API secret from environment variable
-    const apiSecret = process.env.VDOCIPHER_API_SECRET
+    const apiSecret = process.env.NEXT_PUBLIC_VDOCIPHER_API_SECRET
     
     if (!apiSecret) {
       return NextResponse.json(
