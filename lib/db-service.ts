@@ -1,4 +1,3 @@
-import { ObjectId } from "mongodb"
 import clientPromise from "./mongodb"
 import type { User, Video } from "./models"
 
@@ -44,7 +43,7 @@ export async function updateUser(id: string, userData: Partial<User>): Promise<U
 
   const result = await db
     .collection<User>(USERS_COLLECTION)
-    .findOneAndUpdate({ _id: new ObjectId(id) }, { $set: updatedUser }, { returnDocument: "after" })
+    .findOneAndUpdate({ videoId: id }, { $set: updatedUser }, { returnDocument: "after" })
 
   return result
 }
@@ -58,7 +57,7 @@ export async function getAllUsers(): Promise<User[]> {
 export async function deleteUser(id: string): Promise<boolean> {
   const client = await clientPromise
   const db = client.db(DB_NAME)
-  const result = await db.collection(USERS_COLLECTION).deleteOne({ _id: new ObjectId(id) })
+  const result = await db.collection(USERS_COLLECTION).deleteOne({ videoId: id })
   return result.deletedCount === 1
 }
 
@@ -72,7 +71,7 @@ export async function getAllVideos(): Promise<Video[]> {
 export async function getVideoById(id: string): Promise<Video | null> {
   const client = await clientPromise
   const db = client.db(DB_NAME)
-  return db.collection<Video>(VIDEOS_COLLECTION).findOne({ _id: new ObjectId(id) })
+  return db.collection<Video>(VIDEOS_COLLECTION).findOne({ videoId: id })
 }
 
 export async function createVideo(videoData: Omit<Video, "_id">): Promise<Video> {
@@ -101,7 +100,7 @@ export async function updateVideo(id: string, videoData: Partial<Video>): Promis
 
   const result = await db
     .collection<Video>(VIDEOS_COLLECTION)
-    .findOneAndUpdate({ _id: new ObjectId(id) }, { $set: updatedVideo }, { returnDocument: "after" })
+    .findOneAndUpdate({ videoId: id }, { $set: updatedVideo }, { returnDocument: "after" })
 
   return result
 }
@@ -109,7 +108,7 @@ export async function updateVideo(id: string, videoData: Partial<Video>): Promis
 export async function deleteVideo(id: string): Promise<boolean> {
   const client = await clientPromise
   const db = client.db(DB_NAME)
-  const result = await db.collection(VIDEOS_COLLECTION).deleteOne({ _id: new ObjectId(id) })
+  const result = await db.collection(VIDEOS_COLLECTION).deleteOne({ videoId: id })
   return result.deletedCount === 1
 }
 
