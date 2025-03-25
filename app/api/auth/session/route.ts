@@ -4,22 +4,37 @@ import { getUserByTelegramId } from "@/lib/db-service"
 
 export async function GET(req: NextRequest) {
   try {
-    const cookieStore = cookies(req)
-    const sessionCookie = cookieStore.get("user_session")
+    // Use req.cookies instead of cookies(req)
+    const sessionCookie = req.cookies.get("user_session")
 
     if (!sessionCookie) {
+      console.log("No session cookie found")
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
-    const session = JSON.parse(sessionCookie.value)
+    let session;
+    try {
+      session = JSON.parse(sessionCookie.value)
+    } catch (parseError) {
+      console.error("Session cookie parsing error:", parseError)
+      return NextResponse.json({ authenticated: false }, { status: 401 })
+    }
+
+    if (!session || !session.telegramId) {
+      console.log("Invalid session structure")
+      return NextResponse.json({ authenticated: false }, { status: 401 })
+    }
+
     const user = await getUserByTelegramId(session.telegramId)
 
     if (!user || !user.isAllowed) {
-      // Clear the cookie with same path as creation
-      cookieStore.delete({
-        name: "user_session",
-        path: "/",
+      console.log("User not found or not allowed", { 
+        userFound: !!user, 
+        isAllowed: user?.isAllowed 
       })
+      
+      // Clear the cookie
+      cookies().delete("user_session")
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
@@ -37,12 +52,15 @@ export async function GET(req: NextRequest) {
     })
   } catch (error) {
     console.error("Session error:", error)
-    return NextResponse.json({ authenticated: false, error: "Session error" }, { status: 500 })
+    return NextResponse.json({ 
+      authenticated: false, 
+      error: error instanceof Error ? error.message : "Session error" 
+    }, { status: 500 })
   }
 }
 
 export async function DELETE(req: NextRequest) {
-  const cookieStore = cookies(req)
+  const cookieStore = cookies()
   cookieStore.delete({
     name: "user_session",
     path: "/",
@@ -50,4 +68,3 @@ export async function DELETE(req: NextRequest) {
 
   return NextResponse.json({ success: true })
 }
-

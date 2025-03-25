@@ -12,15 +12,26 @@ export default function Home() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await fetch("/api/auth/session")
+        const response = await fetch("/api/auth/session", {
+          headers: {
+            'Accept': 'application/json'
+          }
+        })
         
-        // Check if response is JSON
-        const contentType = response.headers.get('content-type')
-        if (!response.ok || !contentType?.includes('application/json')) {
+        // Log full response for debugging
+        console.log('Response status:', response.status)
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+        
+        const responseText = await response.text()
+        console.log('Raw response:', responseText)
+
+        let data;
+        try {
+          data = JSON.parse(responseText)
+        } catch (parseError) {
+          console.error('Failed to parse response:', parseError)
           throw new Error('Invalid server response')
         }
-
-        const data = await response.json()
 
         if (data.authenticated) {
           setIsAuthenticated(true)
@@ -55,4 +66,3 @@ export default function Home() {
   // This should not be rendered as the router.push above will navigate away
   return null
 }
-
