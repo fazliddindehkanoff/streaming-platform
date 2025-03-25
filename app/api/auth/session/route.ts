@@ -4,7 +4,7 @@ import { getUserByTelegramId } from "@/lib/db-service"
 
 export async function GET(req: NextRequest) {
   try {
-    const cookieStore = cookies()
+    const cookieStore = cookies(req)
     const sessionCookie = cookieStore.get("user_session")
 
     if (!sessionCookie) {
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const cookieStore = cookies()
+  const cookieStore = cookies(req)
   cookieStore.delete({
     name: "user_session",
     path: "/",
