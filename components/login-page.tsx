@@ -107,13 +107,30 @@ export default function LoginPage() {
           <div className="flex justify-center">
             {botName && appUrl ? (
               <div id="telegram-login-container">
+                <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="FootyInsightBot" data-size="large" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
                 <Script
                   src="https://telegram.org/js/telegram-widget.js?22"
-                  async={true}
-                  data-telegram-login={botName}
-                  data-size="large"
-                  data-onauth={`onTelegramAuth(user)`}
-                  data-request-access="write"
+                  onLoad={() => {
+                    setScriptLoaded(true)
+                    const script = document.createElement("script")
+                    script.async = true
+                    script.src = "https://telegram.org/js/telegram-widget.js?22"
+                    script.setAttribute("data-telegram-login", botName)
+                    script.setAttribute("data-size", "large")
+                    script.setAttribute("data-radius", "8")
+                    script.setAttribute("data-request-access", "write")
+                    script.setAttribute("data-userpic", "true")
+                    script.setAttribute("data-onauth", "onTelegramAuth(user)")
+                    
+                    // IMPORTANT: Add the domain attribute
+                    script.setAttribute("data-domain", appUrl)
+                    
+                    const container = document.getElementById("telegram-login-container")
+                    if (container) {
+                      container.innerHTML = ""
+                      container.appendChild(script)
+                    }
+                  }}
                   strategy="afterInteractive"
                 />
               </div>
