@@ -13,6 +13,13 @@ export default function Home() {
     const checkAuth = async () => {
       try {
         const response = await fetch("/api/auth/session")
+        
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type')
+        if (!response.ok || !contentType?.includes('application/json')) {
+          throw new Error('Invalid server response')
+        }
+
         const data = await response.json()
 
         if (data.authenticated) {

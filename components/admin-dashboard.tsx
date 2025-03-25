@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { VideoManagement } from "@/components/video-management"
 import { UserManagement } from "@/components/user-management"
-import { SettingsPanel } from "@/components/settings-panel"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
 
@@ -216,12 +215,6 @@ export function AdminDashboard() {
           >
             Allowed Users
           </button>
-          <button
-            className={`px-4 py-2 font-medium ${activeTab === "settings" ? "text-white border-b-2 border-white" : "text-zinc-400"}`}
-            onClick={() => setActiveTab("settings")}
-          >
-            Settings
-          </button>
         </div>
       </div>
 
@@ -242,8 +235,6 @@ export function AdminDashboard() {
           onDeleteUser={handleDeleteUser}
         />
       )}
-
-      {activeTab === "settings" && <SettingsPanel />}
     </main>
   )
 }

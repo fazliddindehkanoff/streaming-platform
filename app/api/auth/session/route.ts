@@ -15,8 +15,11 @@ export async function GET(req: NextRequest) {
     const user = await getUserByTelegramId(session.telegramId)
 
     if (!user || !user.isAllowed) {
-      // Clear the cookie if the user is not found or not allowed
-      cookieStore.delete("user_session")
+      // Clear the cookie with same path as creation
+      cookieStore.delete({
+        name: "user_session",
+        path: "/",
+      })
       return NextResponse.json({ authenticated: false }, { status: 401 })
     }
 
@@ -40,7 +43,10 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const cookieStore = cookies()
-  cookieStore.delete("user_session")
+  cookieStore.delete({
+    name: "user_session",
+    path: "/",
+  })
 
   return NextResponse.json({ success: true })
 }
