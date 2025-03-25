@@ -19,11 +19,13 @@ import {
 import { Label } from "@/components/ui/label"
 import { Edit, Trash, Plus, Video, AlertCircle } from "lucide-react"
 import { extractVdoCipherId } from "@/lib/vdocipher"
+import MDEditor from "@uiw/react-md-editor"
 
 interface VideoInterface {
   _id?: string
   title: string
   videoId: string
+  description: string
 }
 
 interface VideoManagementProps {
@@ -41,6 +43,7 @@ export function VideoManagement({ videos, onAddVideo, onUpdateVideo, onDeleteVid
   const [formData, setFormData] = useState<Omit<VideoInterface, "_id">>({
     title: "",
     videoId: "",
+    description: "",
   })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -78,6 +81,7 @@ export function VideoManagement({ videos, onAddVideo, onUpdateVideo, onDeleteVid
     setFormData({
       title: video.title,
       videoId: video.videoId,
+      description: video.description,
     })
     setIsEditDialogOpen(true)
   }
@@ -91,6 +95,7 @@ export function VideoManagement({ videos, onAddVideo, onUpdateVideo, onDeleteVid
     setFormData({
       title: "",
       videoId: "",
+      description: "",
     })
     setCurrentVideo(null)
   }
@@ -156,9 +161,6 @@ export function VideoManagement({ videos, onAddVideo, onUpdateVideo, onDeleteVid
             <CardHeader>
               <CardTitle className="text-white">{video.title}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-zinc-400 truncate">{video.videoId}</p>
-            </CardContent>
             <CardFooter className="flex justify-between">
               <Button
                 variant="outline"
@@ -199,6 +201,15 @@ export function VideoManagement({ videos, onAddVideo, onUpdateVideo, onDeleteVid
                   onChange={handleInputChange}
                   className="bg-zinc-800 border-zinc-700"
                   required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-description">Description</Label>
+                <MDEditor
+                  value={formData.description}
+                  onChange={(value) => setFormData({...formData, description: value || ""})}
+                  className="bg-zinc-800 border-zinc-700 rounded-md [&_.w-md-editor-toolbar]:bg-zinc-700 [&_.w-md-editor-toolbar]:border-zinc-600 [&_.w-md-editor-content]:bg-zinc-800"
+                  preview="edit"
                 />
               </div>
               <div className="grid gap-2">

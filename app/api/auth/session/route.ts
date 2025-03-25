@@ -61,7 +61,7 @@ export async function GET(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   const cookieStore = cookies()
-  cookieStore.delete({
+  await cookieStore.delete({
     name: "user_session",
     path: "/",
   })

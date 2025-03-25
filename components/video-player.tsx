@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react"
 import { getVdoCipherOtp } from "@/lib/vdocipher"
-import Script from "next/script"
 
 interface VideoPlayerProps {
   videoId: string

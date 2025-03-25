@@ -28,6 +28,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params
   try {
     // Check if the user is an admin
     const session = await getSessionUser()
@@ -38,13 +39,13 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
     // Prevent deleting the admin user
     const adminId = "1535815443"
-    const userToDelete = await getUserByTelegramId(params.id)
+    const userToDelete = await getUserByTelegramId(id)
 
     if (userToDelete?.telegramId === adminId) {
       return NextResponse.json({ error: "Cannot delete admin user" }, { status: 403 })
     }
 
-    const success = await deleteUser(params.id)
+    const success = await deleteUser(id)
 
     if (!success) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })

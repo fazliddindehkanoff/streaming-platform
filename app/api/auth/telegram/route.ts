@@ -15,8 +15,6 @@ export async function POST(req: NextRequest) {
       console.error("Invalid authentication data")
       return NextResponse.json({ error: "Invalid authentication data" }, { status: 401 })
     }
-
-    // Check if the user already exists in the database
     let user = await getUserByTelegramId(telegramUser.id)
 
     if (!user) {
@@ -25,14 +23,13 @@ export async function POST(req: NextRequest) {
       user = await createUser(userData)
     }
 
-    // Check if the user is allowed to access the platform
     if (!user.isAllowed) {
       return NextResponse.json({ error: "User not allowed" }, { status: 403 })
     }
 
     // Set a session cookie
     const cookieStore = cookies()
-    cookieStore.set(
+    await cookieStore.set(
       "user_session",
       JSON.stringify({
         id: user._id,
@@ -88,7 +85,7 @@ export async function GET(req: NextRequest) {
 
     // Set a session cookie
     const cookieStore = cookies()
-    cookieStore.set(
+    await cookieStore.set(
       "user_session",
       JSON.stringify({
         id: user._id,

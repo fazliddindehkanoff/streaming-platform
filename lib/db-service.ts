@@ -1,16 +1,16 @@
 import clientPromise from "./mongodb"
 import type { User, Video } from "./models"
-
+import { ObjectId } from "mongodb"
 // Database and collections names
 const DB_NAME = "streaming_platform"
 const USERS_COLLECTION = "users"
 const VIDEOS_COLLECTION = "videos"
 
 // User operations
-export async function getUserByTelegramId(telegramId: string): Promise<User | null> {
+export async function getUserByTelegramId(id: string): Promise<User | null> {
   const client = await clientPromise
   const db = client.db(DB_NAME)
-  return db.collection<User>(USERS_COLLECTION).findOne({ telegramId })
+  return db.collection<User>(USERS_COLLECTION).findOne({ telegramId: id.toString() })
 }
 
 export async function createUser(userData: Omit<User, "_id">): Promise<User> {
@@ -20,8 +20,7 @@ export async function createUser(userData: Omit<User, "_id">): Promise<User> {
   const now = new Date()
   const newUser = {
     ...userData,
-    isAdmin: userData.telegramId === "1535815443", // Hardcoded admin ID
-    isAllowed: userData.telegramId === "1535815443", // By default, only admin is allowed
+    telegramId: userData.telegramId.toString(),
     createdAt: now,
     updatedAt: now,
   }
@@ -43,7 +42,7 @@ export async function updateUser(id: string, userData: Partial<User>): Promise<U
 
   const result = await db
     .collection<User>(USERS_COLLECTION)
-    .findOneAndUpdate({ videoId: id }, { $set: updatedUser }, { returnDocument: "after" })
+    .findOneAndUpdate({ _id: new ObjectId(id) }, { $set: updatedUser }, { returnDocument: "after" })
 
   return result
 }
@@ -57,7 +56,9 @@ export async function getAllUsers(): Promise<User[]> {
 export async function deleteUser(id: string): Promise<boolean> {
   const client = await clientPromise
   const db = client.db(DB_NAME)
-  const result = await db.collection(USERS_COLLECTION).deleteOne({ videoId: id })
+  console.log("Deleting user with ID: db-service", id)
+  const result = await db.collection(USERS_COLLECTION).deleteOne({ _id: new ObjectId(id) })
+  console.log("Result: db-service", result)
   return result.deletedCount === 1
 }
 
@@ -90,25 +91,32 @@ export async function createVideo(videoData: Omit<Video, "_id">): Promise<Video>
 }
 
 export async function updateVideo(id: string, videoData: Partial<Video>): Promise<Video | null> {
+  const { _id, ...sanitizedData } = videoData;
+  
   const client = await clientPromise
   const db = client.db(DB_NAME)
 
   const updatedVideo = {
-    ...videoData,
+    ...sanitizedData,
     updatedAt: new Date(),
   }
-
+  console.log("Updating video: db-service", id)
   const result = await db
     .collection<Video>(VIDEOS_COLLECTION)
-    .findOneAndUpdate({ videoId: id }, { $set: updatedVideo }, { returnDocument: "after" })
+    .findOneAndUpdate(
+      { videoId: id },
+      { $set: updatedVideo },
+      { returnDocument: "after" }
+    )
 
+  console.log("Updated video: db-service", result)
   return result
 }
 
 export async function deleteVideo(id: string): Promise<boolean> {
   const client = await clientPromise
   const db = client.db(DB_NAME)
-  const result = await db.collection(VIDEOS_COLLECTION).deleteOne({ videoId: id })
+  const result = await db.collection(VIDEOS_COLLECTION).deleteOne({ _id: new ObjectId(id) })
   return result.deletedCount === 1
 }
 

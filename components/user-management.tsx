@@ -42,13 +42,12 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
-  const [formData, setFormData] = useState<User>({
-    _id: "",
+  const [formData, setFormData] = useState<Omit<User, '_id'>>({
     telegramId: "",
     firstName: "",
     username: "",
     isAdmin: false,
-    isAllowed: false,
+    isAllowed: true,
     role: "user"
   })
 
@@ -67,7 +66,10 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onAddUser(formData)
+    onAddUser({
+      ...formData,
+      _id: formData.telegramId,
+    })
     setIsAddDialogOpen(false)
     resetForm()
   }
@@ -89,7 +91,7 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
   }
 
   const handleAllowUser = (telegramId: string) => {
-    const user = users.find(u => u.telegramId === telegramId)
+    const user = users.find(u => u._id === telegramId)
     if (user) {
       onUpdateUser({ ...user, isAllowed: true })
     }
@@ -98,7 +100,6 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
   const openEditDialog = (user: User) => {
     setCurrentUser(user)
     setFormData({
-      _id: user._id,
       telegramId: user.telegramId,
       firstName: user.firstName,
       username: user.username,
@@ -116,7 +117,6 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
 
   const resetForm = () => {
     setFormData({
-      _id: "",
       telegramId: "",
       firstName: "",
       username: "",
@@ -150,7 +150,8 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
                   <Label htmlFor="id">User ID</Label>
                   <Input
                     id="id"
-                    name="id"
+                    name="telegramId"
+                    type="text"
                     value={formData.telegramId}
                     onChange={handleInputChange}
                     className="bg-zinc-800 border-zinc-700"
@@ -161,7 +162,8 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
                   <Label htmlFor="name">Name</Label>
                   <Input
                     id="name"
-                    name="name"
+                    name="firstName"
+                    type="text"
                     value={formData.firstName}
                     onChange={handleInputChange}
                     className="bg-zinc-800 border-zinc-700"
@@ -177,7 +179,6 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
                     value={formData.username}
                     onChange={handleInputChange}
                     className="bg-zinc-800 border-zinc-700"
-                    required
                   />
                 </div>
                 <div className="grid gap-2">

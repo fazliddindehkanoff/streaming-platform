@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { VideoPlayer } from "@/components/video-player"
 import { LogOut } from "lucide-react"
 import { useRouter } from "next/navigation"
+import MDEditor from "@uiw/react-md-editor"
 
 export function UserDashboard() {
   const router = useRouter()
@@ -105,6 +106,14 @@ export function UserDashboard() {
           </div>
           <div className="mt-4">
             <h2 className="text-xl font-semibold">{selectedVideo?.title}</h2>
+            {selectedVideo?.description && (
+              <div className="prose prose-invert max-w-none text-zinc-400 mt-4 bg-zinc-900">
+                <MDEditor.Markdown 
+                  source={selectedVideo.description}
+                  style={{ backgroundColor: "#09090b" }}
+                />
+              </div>
+            )}
           </div>
         </div>
 

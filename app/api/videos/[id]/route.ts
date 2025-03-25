@@ -27,7 +27,9 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     }
 
     const videoData = await req.json()
-    const updatedVideo = await updateVideo(params.id, videoData)
+    console.log("videoId", params.id)
+    console.log("videoData", videoData)
+    const updatedVideo = await updateVideo(videoData.videoId, videoData)
 
     if (!updatedVideo) {
       return NextResponse.json({ error: "Video not found" }, { status: 404 })
