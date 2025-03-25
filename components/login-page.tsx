@@ -107,7 +107,6 @@ export default function LoginPage() {
           <div className="flex justify-center">
             {botName && appUrl ? (
               <div id="telegram-login-container">
-                <script async src="https://telegram.org/js/telegram-widget.js?22" data-telegram-login="FootyInsightBot" data-size="large" data-onauth="onTelegramAuth(user)" data-request-access="write"></script>
                 <Script
                   src="https://telegram.org/js/telegram-widget.js?22"
                   onLoad={() => {
