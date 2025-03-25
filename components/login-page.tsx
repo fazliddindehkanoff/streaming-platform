@@ -18,13 +18,16 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [scriptLoaded, setScriptLoaded] = useState(false)
   const [botName, setBotName] = useState<string | null>(null)
+  const [appUrl, setAppUrl] = useState<string | null>(null)
 
   useEffect(() => {
-    // Fix: Use environment variable properly
+    // Set bot name and app URL from environment variables
     if (process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME) {
       setBotName(process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME)
     }
-
+    if (process.env.NEXT_PUBLIC_APP_URL) {
+      setAppUrl(process.env.NEXT_PUBLIC_APP_URL)
+    }
 
     // Define the callback function for Telegram Login Widget
     window.onTelegramAuth = (user) => {
@@ -48,10 +51,10 @@ export default function LoginPage() {
   const handleTelegramLogin = async (telegramUser: any) => {
     setIsLoading(true)
     setError(null)
-  
+
     try {
-      console.log("Full Telegram user data:", JSON.stringify(telegramUser, null, 2))
-  
+      console.log("Telegram user data:", telegramUser)
+
       const response = await fetch("/api/auth/telegram", {
         method: "POST",
         headers: {
@@ -59,22 +62,14 @@ export default function LoginPage() {
         },
         body: JSON.stringify(telegramUser),
       })
-  
-      const responseText = await response.text()
-      console.log("Raw response:", responseText)
-  
-      let data;
-      try {
-        data = JSON.parse(responseText)
-      } catch (parseError) {
-        console.error("Failed to parse response:", parseError)
-        throw new Error("Invalid server response")
-      }
-  
+
+      const data = await response.json()
+
       if (!response.ok) {
         throw new Error(data.error || "Authentication failed")
       }
-  
+
+      // Redirect to dashboard on successful login
       router.push("/dashboard")
     } catch (error) {
       console.error("Login failed:", error)
@@ -110,7 +105,7 @@ export default function LoginPage() {
 
           {/* Telegram Login Widget */}
           <div className="flex justify-center">
-            {botName ? (
+            {botName && appUrl ? (
               <div id="telegram-login-container">
                 <Script
                   src="https://telegram.org/js/telegram-widget.js?22"
@@ -125,6 +120,10 @@ export default function LoginPage() {
                     script.setAttribute("data-request-access", "write")
                     script.setAttribute("data-userpic", "true")
                     script.setAttribute("data-onauth", "onTelegramAuth(user)")
+                    
+                    // IMPORTANT: Add the domain attribute
+                    script.setAttribute("data-domain", appUrl)
+                    
                     const container = document.getElementById("telegram-login-container")
                     if (container) {
                       container.innerHTML = ""
@@ -136,8 +135,8 @@ export default function LoginPage() {
               </div>
             ) : (
               <div className="text-red-400 text-center">
-                <p>Telegram bot name not configured.</p>
-                <p className="text-xs mt-1">Please set the NEXT_PUBLIC_TELEGRAM_BOT_NAME environment variable.</p>
+                <p>Telegram bot name or app URL not configured.</p>
+                <p className="text-xs mt-1">Please set the NEXT_PUBLIC_TELEGRAM_BOT_NAME and NEXT_PUBLIC_APP_URL environment variables.</p>
               </div>
             )}
           </div>
@@ -151,4 +150,3 @@ export default function LoginPage() {
     </div>
   )
 }
-
