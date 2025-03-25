@@ -11,6 +11,7 @@
   "dependencies": {
     "@aws-sdk/credential-providers": "latest",
     "@hookform/resolvers": "^3.9.1",
+    "@kinescope/react-kinescope-player": "^0.5.3",
     "@mongodb-js/zstd": "latest",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.4",

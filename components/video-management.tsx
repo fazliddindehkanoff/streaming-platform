@@ -5,8 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -18,7 +17,6 @@ import {
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Edit, Trash, Plus, Video, AlertCircle } from "lucide-react"
-import { extractVdoCipherId } from "@/lib/vdocipher"
 import MDEditor from "@uiw/react-md-editor"
 
 interface VideoInterface {
@@ -129,7 +127,7 @@ export function VideoManagement({ videos, onAddVideo, onUpdateVideo, onDeleteVid
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="videoId">Video ID</Label>
+                  <Label htmlFor="videoId">Kinescope Video ID</Label>
                   <Input
                     id="videoId"
                     name="videoId"
