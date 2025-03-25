@@ -112,7 +112,7 @@ export default function LoginPage() {
                   async={true}
                   data-telegram-login={botName}
                   data-size="large"
-                  data-onauth="onTelegramAuth(user)"
+                  data-onauth={`onTelegramAuth(user)`}
                   data-request-access="write"
                   strategy="afterInteractive"
                 />
