@@ -41,7 +41,7 @@ export default function LoginPage() {
       if (errorParam === "invalid_auth") {
         setError("Invalid authentication data from Telegram")
       } else if (errorParam === "not_allowed") {
-        setError("Sizning accountingizga ruxsat berilmagan, iltimos admin bilan bog'laning.")
+        setError("Sizning akkountingizga ruxsat berilmagan, iltimos @alijanov_ibrohim bilan bog'laning.")
       } else {
         setError("Authentication failed. Please try again.")
       }
@@ -82,9 +82,9 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-black">
       <Card className="w-full max-w-md bg-zinc-900 border-zinc-800">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-white">Welcome</CardTitle>
+          <CardTitle className="text-2xl font-bold text-white">Xush kelibsiz</CardTitle>
           <CardDescription className="text-zinc-400">
-            Sign in with Telegram to access exclusive streaming content
+            Video darslikga kirish uchun pastdagi tugmani bosing va Telegram orqali kiring
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
@@ -141,11 +141,6 @@ export default function LoginPage() {
             )}
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col">
-          <p className="mt-2 text-xs text-center text-zinc-400">
-            By continuing, you agree to our Terms of Service and Privacy Policy.
-          </p>
-        </CardFooter>
       </Card>
     </div>
   )

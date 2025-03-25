@@ -9,7 +9,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Streaming Platform",
   description: "A Notion-inspired streaming platform",
-    generator: 'v0.dev'
 }
 
 export default function RootLayout({

@@ -135,7 +135,7 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
         <h2 className="text-2xl font-bold">Manage Users</h2>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-zinc-800 hover:bg-zinc-700">
+            <Button className="bg-zinc-300 hover:bg-zinc-200">
               <Plus className="mr-2 h-4 w-4" /> Add User
             </Button>
           </DialogTrigger>
@@ -290,11 +290,10 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
                 <Label htmlFor="edit-name">Name</Label>
                 <Input
                   id="edit-name"
-                  name="name"
+                  name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
                   className="bg-zinc-800 border-zinc-700"
-                  required
                 />
               </div>
               <div className="grid gap-2">
@@ -306,7 +305,6 @@ export function UserManagement({ users, onAddUser, onUpdateUser, onDeleteUser }:
                   value={formData.username}
                   onChange={handleInputChange}
                   className="bg-zinc-800 border-zinc-700"
-                  required
                 />
               </div>
               <div className="grid gap-2">
