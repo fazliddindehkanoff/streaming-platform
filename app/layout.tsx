@@ -7,8 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Streaming Platform",
-  description: "A Notion-inspired streaming platform",
+  title: "Maktab Qo'llanma",
+  description: "custom streaming platform",
 }
 
 export default function RootLayout({

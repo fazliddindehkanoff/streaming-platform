@@ -25,7 +25,6 @@ export function VideoPlayer({ videoId }: VideoPlayerProps) {
           console.error("Kinescope player error:", error)
           setError("Failed to load video content")
         }}
-        style={{ width: '100%', height: '100%' }}
       />
       
       {isLoading && (

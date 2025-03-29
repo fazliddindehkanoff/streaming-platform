@@ -101,7 +101,7 @@ export function UserDashboard() {
       <div className="container mx-auto p-6 max-w-6xl">
         <div className="mb-8">
           <h1 className="text-2xl font-bold mb-2">Now Playing</h1>
-          <div className="aspect-video bg-zinc-900 rounded-lg overflow-hidden">
+          <div className="aspect-video bg-zinc-900 rounded-lg overflow-visible">
             <VideoPlayer videoId={selectedVideo?.videoId} />
           </div>
           <div className="mt-4">
